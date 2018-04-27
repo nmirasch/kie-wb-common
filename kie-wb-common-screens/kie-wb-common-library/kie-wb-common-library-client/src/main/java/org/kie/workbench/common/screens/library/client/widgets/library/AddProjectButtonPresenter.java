@@ -108,7 +108,7 @@ public class AddProjectButtonPresenter {
         menuResourceHandlerWidget.init(newWorkspaceProjectHandler.getDescription(),
                                        () -> libraryPlaces.closeAllPlacesOrNothing(() -> {
                                                                                        libraryPlaces.goToLibrary();
-                                                                                       newWorkspaceProjectHandler.getCommand(newResourcePresenter);
+                                                                                       newWorkspaceProjectHandler.getCommand(newResourcePresenter).execute();
                                                                                    }));
         view.addOtherProject(menuResourceHandlerWidget);
     }

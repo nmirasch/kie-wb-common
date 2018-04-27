@@ -39,7 +39,6 @@ import org.kie.workbench.common.screens.library.api.LibraryInfo;
 import org.kie.workbench.common.screens.library.api.LibraryService;
 import org.kie.workbench.common.screens.library.api.preferences.LibraryPreferences;
 import org.kie.workbench.common.screens.library.client.util.LibraryPlaces;
-import org.kie.workbench.common.screens.projecteditor.util.NewWorkspaceProjectUtils;
 import org.kie.workbench.common.services.shared.validation.ValidationService;
 import org.kie.workbench.common.widgets.client.callbacks.CommandWithThrowableDrivenErrorCallback;
 import org.uberfire.client.mvp.UberElement;
@@ -121,6 +120,8 @@ public class AddProjectPopUpPresenter {
 
     LibraryInfo libraryInfo;
 
+    RemoteCallback<WorkspaceProject> successCallback;
+
     @Inject
     public AddProjectPopUpPresenter(final Caller<LibraryService> libraryService,
                                     final BusyIndicatorView busyIndicatorView,
@@ -157,6 +158,10 @@ public class AddProjectPopUpPresenter {
             }
         }).getLibraryInfo(projectContext.getActiveOrganizationalUnit()
                                         .orElseThrow(() -> new IllegalStateException("Cannot get library info without an active organizational unit.")));
+    }
+
+    public void setSuccessCallback(RemoteCallback<WorkspaceProject> successCallback){
+        this.successCallback = successCallback;
     }
 
     public void show() {
@@ -307,6 +312,14 @@ public class AddProjectPopUpPresenter {
     }
 
     private RemoteCallback<WorkspaceProject> getSuccessCallback() {
+        if(successCallback != null) {
+            return successCallback;
+        } else {
+            return getProjectCreationSuccessCallback();
+        }
+    }
+
+    public RemoteCallback<WorkspaceProject> getProjectCreationSuccessCallback() {
         return project -> {
             newProjectEvent.fire(new NewProjectEvent(project));
             view.hide();

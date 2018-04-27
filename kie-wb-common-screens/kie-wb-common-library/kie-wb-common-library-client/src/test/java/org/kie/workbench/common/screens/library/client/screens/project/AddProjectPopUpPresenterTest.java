@@ -27,6 +27,7 @@ import org.guvnor.common.services.project.model.POM;
 import org.guvnor.common.services.project.model.WorkspaceProject;
 import org.guvnor.common.services.project.service.DeploymentMode;
 import org.guvnor.structure.organizationalunit.OrganizationalUnit;
+import org.jboss.errai.common.client.api.RemoteCallback;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +43,7 @@ import org.uberfire.ext.widgets.common.client.common.BusyIndicatorView;
 import org.uberfire.java.nio.file.FileAlreadyExistsException;
 import org.uberfire.mocks.CallerMock;
 import org.uberfire.mocks.SessionInfoMock;
+import org.uberfire.mvp.Command;
 import org.uberfire.rpc.SessionInfo;
 import org.uberfire.workbench.events.NotificationEvent;
 
@@ -413,5 +415,22 @@ public class AddProjectPopUpPresenterTest {
         verify(view).showError(anyString());
         verify(libraryPlaces,
                never()).goToProject(any(WorkspaceProject.class));
+    }
+
+    @Test
+    public void createProjectWithExternalSuccessCallbackTest() {
+        doReturn("test").when(view).getName();
+        doReturn("description").when(view).getDescription();
+        Command externalCommand = mock(Command.class);
+        presenter.setSuccessCallback(new RemoteCallback<WorkspaceProject>() {
+            @Override
+            public void callback(WorkspaceProject workspaceProject) {
+                externalCommand.execute();
+            }
+        });
+        presenter.add();
+
+        verify(view).showBusyIndicator(anyString());
+        verify(externalCommand).execute();
     }
 }
